@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>GPS Tam Konum Projesi</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; text-align: center; }
+        .card { background: white; padding: 25px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); text-align: left; }
+        h2 { text-align: center; color: #333; }
+        .info { margin: 12px 0; font-size: 16px; word-break: break-all; }
+        .highlight { font-weight: bold; color: #007bff; }
+        .map-btn { display: block; background: #28a745; color: white; text-align: center; padding: 10px; border-radius: 5px; text-decoration: none; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>GPS Hassas Konum Paneli</h2>
+        <p id="durum" style="text-align:center; color: #e67e22;">Konum izni bekleniyor...</p>
+        
+        <div class="info">📍 Enlem (Latitude): <span id="enlem" class="highlight">-</span></div>
+        <div class="info">📍 Boylam (Longitude): <span id="boylam" class="highlight">-</span></div>
+        <div class="info">🎯 Hassasiyet: <span id="hassasiyet" class="highlight">-</span> metre</div>
+
+        <!-- Haritada açmak için dinamik buton -->
+        <a id="haritaLinki" href="#" class="map-btn" style="display:none;" target="_blank">Haritada Göster</a>
+    </div>
+
+    <script>
+        window.onload = function() {
+            if (navigator.geolocation) {
+                // Tarayıcıdan hassas konum (GPS) istiyoruz
+                navigator.geolocation.getCurrentPosition(konumuBasariylaAl, hataVer, {
+                    enableHighAccuracy: true, // En yüksek GPS hassasiyeti
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                document.getElementById("durum").innerText = "Tarayıcınız GPS özelliğini desteklemiyor.";
+            }
+        };
+
+        function konumuBasariylaAl(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            // Ekrana yazdır
+            document.getElementById("durum").innerText = "Konum başarıyla alındı!";
+            document.getElementById("enlem").innerText = lat;
+            document.getElementById("boylam").innerText = lon;
+            document.getElementById("hassasiyet").innerText = Math.round(accuracy);
+
+            // Google Maps bağlantısını oluştur ve butonu görünür yap
+            const mapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+            const btn = document.getElementById("haritaLinki");
+            btn.href = mapsUrl;
+            btn.style.display = "block";
+            btn.innerText = "Haritada Aç (Nokta Atışı Gör)";
+        }
+
+        function hataVer(error) {
+            if(error.code === error.PERMISSION_DENIED) {
+                document.getElementById("durum").innerText = "Konum izni reddedildi! Projede test etmek için izin vermelisiniz.";
+                document.getElementById("durum").style.color = "red";
+            } else {
+                document.getElementById("durum").innerText = "Konum alınırken bir hata oluştu.";
+            }
+        }
+    </script>
+
+</body>
+</html>
